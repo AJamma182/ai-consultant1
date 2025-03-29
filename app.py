@@ -19,6 +19,7 @@ if prompt:
 You are a project planning assistant.
 
 Please break the project into logical phases with start and end dates.
+display each phase should be on a new line
 
 ⚠️ Output one phase per line using this format:
 Phase: <Name>, Start: <Month Day, Year>, End: <Month Day, Year>
