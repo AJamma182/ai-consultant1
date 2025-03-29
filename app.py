@@ -44,7 +44,6 @@ with chat_col:
         with st.chat_message(role):
             st.markdown(text)
 
-
     if not st.session_state.plan_df.empty:
         st.subheader("📊 Visual Timeline")
         fig = px.timeline(
