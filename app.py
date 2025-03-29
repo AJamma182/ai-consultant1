@@ -20,7 +20,7 @@ You are a project planning assistant.
 
 Please break the project into logical phases with start and end dates.
 
-Use this format for each phase:
+⚠️ Output one phase per line using this format:
 Phase: <Name>, Start: <Month Day, Year>, End: <Month Day, Year>
 
 Example:
