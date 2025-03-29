@@ -22,6 +22,7 @@ Please break the project into logical phases with start and end dates.
 
 ⚠️ Output one phase per line using this format:
 Phase: <Name>, Start: <Month Day, Year>, End: <Month Day, Year>
+Separate each phase using a newline (\\n).
 
 Example:
 Phase: Planning, Start: April 1, 2025, End: April 10, 2025
