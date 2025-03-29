@@ -15,18 +15,16 @@ if "messages" not in st.session_state:
 prompt = st.chat_input("📝 Describe your business project...")
 
 if prompt:
-    full_prompt = f"""You are a project planning assistant.
+    full_prompt = f"""
+You are a project planning assistant.
 
-The user will describe a business project. 
-Your job is to return a high-level plan, broken into logical phases.
-
-⚠️ Return the output in the following format (one phase per line):
-Phase: <Name>, Start: <Month Day, Year>, End: <Month Day, Year>
-
-Example:
+Return the project plan in exactly this format:
+```
 Phase: Discovery, Start: April 1, 2025, End: April 10, 2025
-Phase: Discovery, Start: April 1, 2025, End: April 10, 2025
-Now generate the plan.
+Phase: Build, Start: April 11, 2025, End: May 20, 2025
+```
+
+⚠️ Do not include any commentary, intro, or explanation. Just output the list in the format above.
 
 Project Description: {prompt}
 """
@@ -48,6 +46,12 @@ with chat_col:
 
     if not st.session_state.plan_df.empty:
         st.subheader("📊 Project Timeline")
+        st.write("🧾 GPT Response:")
+        st.text(ai_reply)
+
+        st.write("🧪 Parsed Plan DataFrame:")
+        st.dataframe(st.session_state.plan_df)
+
         df = st.session_state.plan_df
         fig = px.timeline(
             df,
