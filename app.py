@@ -16,18 +16,19 @@ prompt = st.chat_input("📝 Describe your business project...")
 
 if prompt:
     full_prompt = f"""
-You are a project planning assistant.
+                    You are a project planning assistant.
 
-Return the project plan in exactly this format:
-```
-Phase: Discovery, Start: April 1, 2025, End: April 10, 2025
-Phase: Build, Start: April 11, 2025, End: May 20, 2025
-```
+                    Please break the project into logical phases with start and end dates.
 
-⚠️ Do not include any commentary, intro, or explanation. Just output the list in the format above.
+                    Use this format for each phase:
+                    Phase: <Name>, Start: <Month Day, Year>, End: <Month Day, Year>
 
-Project Description: {prompt}
-"""
+                    Example:
+                    Phase: Planning, Start: April 1, 2025, End: April 10, 2025
+                    Phase: Design, Start: April 11, 2025, End: April 20, 2025
+
+                    Project Description: {prompt}
+                    """
 
     st.session_state.messages.append({"role": "user", "text": prompt})
     ai_reply = get_ai_response(full_prompt)
@@ -46,12 +47,6 @@ with chat_col:
 
     if not st.session_state.plan_df.empty:
         st.subheader("📊 Project Timeline")
-        st.write("🧾 GPT Response:")
-        st.text(ai_reply)
-
-        st.write("🧪 Parsed Plan DataFrame:")
-        st.dataframe(st.session_state.plan_df)
-
         df = st.session_state.plan_df
         fig = px.timeline(
             df,
