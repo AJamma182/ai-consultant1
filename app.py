@@ -3,6 +3,7 @@ from openai_client import get_ai_response
 from planner import parse_response_to_plan
 import plotly.express as px
 import pandas as pd
+from datetime import date, timedelta
 
 st.set_page_config(layout="wide")
 st.title("AI Project Planner 🧠")
@@ -11,29 +12,27 @@ if "messages" not in st.session_state:
     st.session_state.messages = []
     st.session_state.plan_df = pd.DataFrame()
 
-# Chat input
-prompt = st.chat_input("📝 Describe your business project...")
+# Date input section in sidebar
+st.sidebar.subheader("📅 Project Timeframe")
+project_start = st.sidebar.date_input("Start Date", date.today())
+project_end = st.sidebar.date_input("End Date", date.today() + timedelta(days=30))
 
-if prompt:
-    full_prompt = f"""
-You are a project planning assistant.
+if project_end < project_start:
+    st.sidebar.error("End date must be after start date.")
+else:
+    # Chat prompt input
+    prompt = st.chat_input("📝 Describe your business project...")
 
-Please break the project into logical phases with start and end dates.
-display each phase should be on a new line
+    if prompt:
+        full_prompt = f"""Project Goal: {prompt}
+Start Date: {project_start}
+End Date: {project_end}
 
-⚠️ Output one phase per line using this format:
-Phase: <Name>, Start: <Month Day, Year>, End: <Month Day, Year>
-
-Phase: <Name>, Start: <Month Day, Year>, End: <Month Day, Year>
-
-
-Project Description: {prompt}
-"""
-
-    st.session_state.messages.append({"role": "user", "text": prompt})
-    ai_reply = get_ai_response(full_prompt)
-    st.session_state.messages.append({"role": "ai", "text": ai_reply})
-    st.session_state.plan_df = parse_response_to_plan(ai_reply)
+Please generate a project plan broken down into logical phases. For each phase, provide a name, start date, and end date, all within this range."""
+        st.session_state.messages.append({"role": "user", "text": prompt})
+        ai_reply = get_ai_response(full_prompt)
+        st.session_state.messages.append({"role": "ai", "text": ai_reply})
+        st.session_state.plan_df = parse_response_to_plan(ai_reply)
 
 # Layout
 chat_col, summary_col = st.columns([2.5, 1])
@@ -46,40 +45,27 @@ with chat_col:
             st.markdown(text)
 
     if not st.session_state.plan_df.empty:
-        st.subheader("📊 Project Timeline")
-        st.write("🧾 GPT Response:")
-        st.text(ai_reply)
-
-        st.write("🧪 Parsed Plan DataFrame:")
-        st.dataframe(st.session_state.plan_df)
-
-        st.write("📋 Column Types:")
-        st.write(st.session_state.plan_df.dtypes)
-
+        st.subheader("📊 Project Timeline (from AI)")
         df = st.session_state.plan_df
-
-        try:
-            fig = px.timeline(
-                df,
-                x_start="Start",
-                x_end="End",
-                y="Phase",
-                color="Phase",
-                hover_name="Phase"
-            )
-            fig.update_yaxes(autorange="reversed")
-            fig.update_layout(
-                margin=dict(l=0, r=0, t=30, b=0),
-                height=400,
-            )
-            st.plotly_chart(fig, use_container_width=True)
-        except Exception as e:
-            st.error(f"❌ Failed to render timeline: {e}")
+        fig = px.timeline(
+            df,
+            x_start="Start",
+            x_end="End",
+            y="Phase",
+            color="Phase",
+            hover_name="Phase"
+        )
+        fig.update_yaxes(autorange="reversed")
+        fig.update_layout(
+            margin=dict(l=0, r=0, t=30, b=0),
+            height=400,
+        )
+        st.plotly_chart(fig, use_container_width=True)
 
 with summary_col:
-    st.subheader("📌 GPT-Generated Project Phases")
+    st.subheader("📌 Project Summary")
     if not st.session_state.plan_df.empty:
-        for _, row in st.session_state.plan_df.iterrows():
-            st.markdown(f"**{row['Phase']}**: {row['Start'].date()} → {row['End'].date()}")
+        st.markdown(f"**Project Phases:** {len(st.session_state.plan_df)}")
+        st.dataframe(st.session_state.plan_df)
     else:
         st.info("Start chatting to see your project summary here.")
