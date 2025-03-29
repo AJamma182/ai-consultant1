@@ -28,7 +28,7 @@ else:
 Start Date: {project_start}
 End Date: {project_end}
 
-Please generate a project plan broken down into logical phases with start and end dates within this range."""
+Please generate a project plan broken down into logical phases. For each phase, provide a name, start date, and end date, all within this range."""
         st.session_state.messages.append({"role": "user", "text": prompt})
         ai_reply = get_ai_response(full_prompt)
         st.session_state.messages.append({"role": "ai", "text": ai_reply})
@@ -45,9 +45,10 @@ with chat_col:
             st.markdown(text)
 
     if not st.session_state.plan_df.empty:
-        st.subheader("📊 Visual Timeline")
+        st.subheader("📊 Project Timeline (from AI)")
+        df = st.session_state.plan_df
         fig = px.timeline(
-            st.session_state.plan_df,
+            df,
             x_start="Start",
             x_end="End",
             y="Phase",
@@ -64,7 +65,7 @@ with chat_col:
 with summary_col:
     st.subheader("📌 Project Summary")
     if not st.session_state.plan_df.empty:
-        st.markdown(f"**Project Phases:** {{len(st.session_state.plan_df)}}")
+        st.markdown(f"**Project Phases:** {len(st.session_state.plan_df)}")
         st.dataframe(st.session_state.plan_df)
     else:
         st.info("Start chatting to see your project summary here.")
