@@ -24,11 +24,6 @@ display each phase should be on a new line
 ⚠️ Output one phase per line using this format:
 Phase: <Name>, Start: <Month Day, Year>, End: <Month Day, Year>
 
-
-Example:
-Phase: Planning, Start: April 1, 2025, End: April 10, 2025
-Phase: Design, Start: April 11, 2025, End: April 20, 2025
-
 Project Description: {prompt}
 """
 
