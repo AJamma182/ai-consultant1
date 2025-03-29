@@ -46,21 +46,37 @@ with chat_col:
 
     if not st.session_state.plan_df.empty:
         st.subheader("📊 Project Timeline (from AI)")
-        df = st.session_state.plan_df
-        fig = px.timeline(
-            df,
-            x_start="Start",
-            x_end="End",
-            y="Phase",
-            color="Phase",
-            hover_name="Phase"
-        )
-        fig.update_yaxes(autorange="reversed")
-        fig.update_layout(
-            margin=dict(l=0, r=0, t=30, b=0),
-            height=400,
-        )
-        st.plotly_chart(fig, use_container_width=True)
+
+        # Debug info
+        st.write("🧪 Parsed Plan DataFrame:")
+        st.dataframe(st.session_state.plan_df)
+
+        st.write("📋 Column Types:")
+        st.write(st.session_state.plan_df.dtypes)
+
+        # Force datetime conversion
+        df = st.session_state.plan_df.copy()
+        df["Start"] = pd.to_datetime(df["Start"], errors="coerce")
+        df["End"] = pd.to_datetime(df["End"], errors="coerce")
+
+        # Timeline
+        try:
+            fig = px.timeline(
+                df,
+                x_start="Start",
+                x_end="End",
+                y="Phase",
+                color="Phase",
+                hover_name="Phase"
+            )
+            fig.update_yaxes(autorange="reversed")
+            fig.update_layout(
+                margin=dict(l=0, r=0, t=30, b=0),
+                height=400,
+            )
+            st.plotly_chart(fig, use_container_width=True)
+        except Exception as e:
+            st.error(f"❌ Failed to render timeline: {e}")
 
 with summary_col:
     st.subheader("📌 Project Summary")
