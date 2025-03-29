@@ -3,19 +3,26 @@ import re
 from dateutil import parser
 
 def parse_response_to_plan(text):
-    # Auto-fix formatting by adding newlines before each "Phase:"
-    text = re.sub(r"(?!^)\\s+(?=Phase:)", "\n", text)
-
-    pattern = r"Phase:\\s*(.*?),\\s*Start:\\s*(.*?),\\s*End:\\s*(.*?)\\s*$"
-    matches = re.findall(pattern, text, re.MULTILINE)
-
+    lines = text.strip().splitlines()
     data = []
-    for phase, start_str, end_str in matches:
-        try:
-            start = parser.parse(start_str)
-            end = parser.parse(end_str)
-            data.append({"Phase": phase.strip(), "Start": start, "End": end})
-        except:
-            continue
+    phase_name = start_date = end_date = None
+
+    for line in lines:
+        if "Phase" in line:
+            match = re.search(r"Phase\\s\\d+:\\s*(.+)", line)
+            if match:
+                phase_name = match.group(1).strip()
+        elif "Start Date" in line:
+            start_date = parser.parse(line.split(":", 1)[1].strip())
+        elif "End Date" in line:
+            end_date = parser.parse(line.split(":", 1)[1].strip())
+            if phase_name and start_date and end_date:
+                data.append({
+                    "Phase": phase_name,
+                    "Start": start_date,
+                    "End": end_date
+                })
+                # Reset after adding
+                phase_name = start_date = end_date = None
 
     return pd.DataFrame(data)
