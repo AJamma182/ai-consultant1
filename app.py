@@ -11,6 +11,23 @@ if "messages" not in st.session_state:
     st.session_state.messages = []
     st.session_state.plan_df = pd.DataFrame()
 
+full_prompt = f"""
+You are a project planning assistant.
+
+The user will describe a business project. 
+Your job is to return a high-level plan, broken into logical phases.
+
+⚠️ Return the output in the following format (one phase per line):
+Phase: <Name>, Start: <Month Day, Year>, End: <Month Day, Year>
+
+Example:
+Phase: Discovery, Start: April 1, 2025, End: April 10, 2025
+
+Now generate the plan.
+
+Project Description: {prompt}
+"""
+
 # Chat input
 prompt = st.chat_input("📝 Describe your business project...")
 
