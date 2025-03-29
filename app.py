@@ -29,9 +29,9 @@ Start Date: {project_start}
 End Date: {project_end}
 
 Please generate a project plan broken down into logical phases with start and end dates within this range."""
-        st.session_state.messages.append({{"role": "user", "text": prompt}})
+        st.session_state.messages.append({"role": "user", "text": prompt})
         ai_reply = get_ai_response(full_prompt)
-        st.session_state.messages.append({{"role": "ai", "text": ai_reply}})
+        st.session_state.messages.append({"role": "ai", "text": ai_reply})
         st.session_state.plan_df = parse_response_to_plan(ai_reply)
 
 # Layout
