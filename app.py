@@ -25,7 +25,7 @@ Phase: <Name>, Start: <Month Day, Year>, End: <Month Day, Year>
 
 Example:
 Phase: Discovery, Start: April 1, 2025, End: April 10, 2025
-
+Phase: Discovery, Start: April 1, 2025, End: April 10, 2025
 Now generate the plan.
 
 Project Description: {prompt}
