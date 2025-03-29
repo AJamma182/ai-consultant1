@@ -11,7 +11,7 @@ if "messages" not in st.session_state:
     st.session_state.messages = []
     st.session_state.plan_df = pd.DataFrame()
 
-# Chat prompt input
+# Chat input
 prompt = st.chat_input("📝 Describe your business project...")
 
 if prompt:
@@ -20,6 +20,7 @@ A business user will describe their project.
 Generate a high-level project plan with:
 - Phase names
 - Start and end dates for each phase
+- Ensure the output is clear and structured
 
 Project Description: {prompt}"""
 
@@ -57,9 +58,9 @@ with chat_col:
         st.plotly_chart(fig, use_container_width=True)
 
 with summary_col:
-    st.subheader("📌 Project Summary")
+    st.subheader("📌 GPT-Generated Project Phases")
     if not st.session_state.plan_df.empty:
-        st.markdown(f"**Project Phases:** {len(st.session_state.plan_df)}")
-        st.dataframe(st.session_state.plan_df)
+        for _, row in st.session_state.plan_df.iterrows():
+            st.markdown(f"**{row['Phase']}**: {row['Start'].date()} → {row['End'].date()}")
     else:
         st.info("Start chatting to see your project summary here.")
