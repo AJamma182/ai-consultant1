@@ -39,8 +39,11 @@ chat_col, summary_col = st.columns([2.5, 1])
 
 with chat_col:
     for msg in st.session_state.messages:
-        with st.chat_message(msg["role"]):
-            st.markdown(msg["text"])
+        role = msg.get("role", "user")
+        text = msg.get("text", "")
+        with st.chat_message(role):
+            st.markdown(text)
+
 
     if not st.session_state.plan_df.empty:
         st.subheader("📊 Visual Timeline")
