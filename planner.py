@@ -4,25 +4,20 @@ from dateutil import parser
 
 def parse_response_to_plan(text):
     lines = text.strip().splitlines()
-    data = []
-    phase_name = start_date = end_date = None
+    table_lines = [line for line in lines if "|" in line and not line.strip().startswith("|-")]
+    rows = []
 
-    for line in lines:
-        if "Phase" in line:
-            match = re.search(r"Phase\\s\\d+:\\s*(.+)", line)
-            if match:
-                phase_name = match.group(1).strip()
-        elif "Start Date" in line:
-            start_date = parser.parse(line.split(":", 1)[1].strip())
-        elif "End Date" in line:
-            end_date = parser.parse(line.split(":", 1)[1].strip())
-            if phase_name and start_date and end_date:
-                data.append({
-                    "Phase": phase_name,
-                    "Start": start_date,
-                    "End": end_date
+    for line in table_lines[1:]:  # Skip the header
+        parts = [p.strip() for p in line.strip().split("|") if p.strip()]
+        if len(parts) == 3:
+            phase, start, end = parts
+            try:
+                rows.append({
+                    "Phase": phase,
+                    "Start": parser.parse(start),
+                    "End": parser.parse(end)
                 })
-                # Reset after adding
-                phase_name = start_date = end_date = None
+            except:
+                continue
 
-    return pd.DataFrame(data)
+    return pd.DataFrame(rows)
