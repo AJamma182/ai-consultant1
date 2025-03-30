@@ -41,7 +41,7 @@ Project Description: {prompt}
 
     st.session_state.messages.append({"role": "user", "text": prompt})
     ai_reply = get_ai_response(full_prompt)
-    st.session_state.messages.append({"role": "ai", "text": ai_reply})
+    st.session_state.messages.append({"role": "assistant", "text": ai_reply})
     st.session_state.plan_df = parse_response_to_plan(ai_reply)
 
 # Layout
