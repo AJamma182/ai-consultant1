@@ -3,7 +3,7 @@ from openai_client import get_ai_response
 from planner import parse_response_to_plan
 import plotly.express as px
 import pandas as pd
-from datetime import date, timedelta
+from datetime import datetime
 
 st.set_page_config(layout="wide")
 st.title("AI Project Planner 🧠")
@@ -12,23 +12,20 @@ if "messages" not in st.session_state:
     st.session_state.messages = []
     st.session_state.plan_df = pd.DataFrame()
 
-st.sidebar.subheader("📅 Project Timeframe")
-project_start = st.sidebar.date_input("Start Date", date.today())
-project_end = st.sidebar.date_input("End Date", date.today() + timedelta(days=30))
+# Chat prompt input
+prompt = st.chat_input("📝 Describe your business project...")
 
-if project_end < project_start:
-    st.sidebar.error("End date must be after start date.")
-else:
-    prompt = st.chat_input("📝 Describe your business project...")
+if prompt:
+    full_prompt = f"""You are a project planning assistant.
 
-    if prompt:
-        full_prompt = f"""You are a project planning assistant.
+Ask the user for a project start date first. Once they provide it, generate a high-level project plan using a markdown table with columns: Phase | Start | End.
 
-Please generate a high-level project plan using a markdown table with columns: Phase | Start | End
+After the plan, inform the user: 
+"You can edit the plan manually in the table, or ask me to modify any part of it for you."
 
-The dates must fall within the following range:
-Start Date: {project_start}
-End Date: {project_end}
+Format your output as:
+1. A markdown table (columns: Phase | Start | End)
+2. A friendly reminder that the plan is editable or modifiable
 
 Example:
 
@@ -37,16 +34,17 @@ Example:
 | Planning             | April 1, 2025 | April 10, 2025|
 | Design and Research  | April 11, 2025| April 25, 2025|
 
-Now generate the plan for the following project:
+You can edit the plan manually in the table, or ask me to modify any part of it for you.
 
-{prompt}
+Project Description: {prompt}
 """
 
-        st.session_state.messages.append({"role": "user", "text": prompt})
-        ai_reply = get_ai_response(full_prompt)
-        st.session_state.messages.append({"role": "ai", "text": ai_reply})
-        st.session_state.plan_df = parse_response_to_plan(ai_reply)
+    st.session_state.messages.append({"role": "user", "text": prompt})
+    ai_reply = get_ai_response(full_prompt)
+    st.session_state.messages.append({"role": "ai", "text": ai_reply})
+    st.session_state.plan_df = parse_response_to_plan(ai_reply)
 
+# Layout
 chat_col, summary_col = st.columns([2.5, 1])
 
 with chat_col:
@@ -57,15 +55,24 @@ with chat_col:
             st.markdown(text)
 
     if not st.session_state.plan_df.empty:
-        st.subheader("📊 Project Timeline (from AI)")
-        st.dataframe(st.session_state.plan_df)
-        st.write("📋 Column Types:")
-        st.write(st.session_state.plan_df.dtypes)
+        st.subheader("✏️ Edit Project Plan")
+        edited_df = st.data_editor(
+            st.session_state.plan_df,
+            column_config={
+                "Phase": "Phase Name",
+                "Start": st.column_config.DateColumn("Start Date"),
+                "End": st.column_config.DateColumn("End Date")
+            },
+            num_rows="dynamic",
+            use_container_width=True
+        )
+        st.session_state.plan_df = edited_df
 
-        df = st.session_state.plan_df.copy()
+        df = edited_df.copy()
         df["Start"] = pd.to_datetime(df["Start"], errors="coerce")
         df["End"] = pd.to_datetime(df["End"], errors="coerce")
 
+        st.subheader("📊 Project Timeline")
         try:
             fig = px.timeline(
                 df,
